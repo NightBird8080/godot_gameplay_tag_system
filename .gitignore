@@ -1,0 +1,10 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# IDE config file
+.vscode/
+.idea/
+.vs/
+*.sln
+*.csproj.user

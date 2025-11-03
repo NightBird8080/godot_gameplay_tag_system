@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="TagDictionary" load_steps=2 format=3 uid="uid://c2c6w5xuvtxbt"]
+
+[ext_resource type="Script" uid="uid://c7bhn5npj1mlq" path="res://addons/gameplay_tag_system/tag_dictionary.gd" id="1_76e2j"]
+
+[resource]
+script = ExtResource("1_76e2j")
+tags = {
+"First02": {
+"Second22": null
+},
+"FirstLevel": {
+"SecondLevel": {
+"ThirdLevel": null
+},
+"SecondLevel2": null
+},
+"Test": null
+}
+metadata/_custom_type_script = "uid://c7bhn5npj1mlq"
