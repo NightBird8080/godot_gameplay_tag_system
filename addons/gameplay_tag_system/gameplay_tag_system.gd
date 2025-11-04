@@ -2,8 +2,14 @@
 class_name GameplayTagSystem
 extends EditorPlugin
 
-
+## Default tags resource path, tag_selector will use it
 const TAGS_RESOURCE_PATH: StringName = "res://addons/gameplay_tag_system/all_tags.tres"
+
+const TAG_SELECTOR_PATH :String = "editor/tag_selector.tscn"
+
+const EDIT_SINGLE_TAG_PROPERTY_PATH: String = "editor/edit_property_single_tag.gd"
+
+
 
 var _selector :Window
 var _inspector_plugin : EditorInspectorPluginTag
@@ -20,13 +26,19 @@ class EditorInspectorPluginTag extends EditorInspectorPlugin:
 		const TAG_EDIT_PREFIX :  String= "Tag"
 
 		var select_tag : bool= hint_string.begins_with(TAG_EDIT_PREFIX)
-
-		if type in [TYPE_STRING, TYPE_STRING_NAME, TYPE_ARRAY, TYPE_PACKED_STRING_ARRAY]:
-			if select_tag:
-				var prop_edit := preload("editor/edit_property_tag.gd").new()
+		
+		if !select_tag :
+			return false
+	
+		match type:
+			TYPE_STRING,TYPE_STRING_NAME:
+				var prop_edit : EditPropertySingleTag = preload(EDIT_SINGLE_TAG_PROPERTY_PATH).new()
 				prop_edit.setup(_selector)
 				add_property_editor(name, prop_edit)
 				return true
+			_:
+				return false
+
 		return false
 
 
@@ -43,7 +55,7 @@ func _disable_plugin() -> void:
 
 func _enter_tree() -> void:
 	# Initialization of the plugin goes here.
-	_selector = preload("editor/tag_selector.tscn").instantiate()
+	_selector = preload(TAG_SELECTOR_PATH).instantiate()
 	add_child(_selector)
 	
 	_inspector_plugin = EditorInspectorPluginTag.new(_selector)
@@ -55,8 +67,5 @@ func _enter_tree() -> void:
 func _exit_tree() -> void:
 
 	remove_inspector_plugin(_inspector_plugin)
-
-	remove_tool_menu_item("Generate dtag_def.gen.gd")
 	# Clean-up of the plugin goes here.
 	pass
-

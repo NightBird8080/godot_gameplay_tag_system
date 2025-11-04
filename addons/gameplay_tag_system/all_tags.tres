@@ -4,16 +4,4 @@
 
 [resource]
 script = ExtResource("1_76e2j")
-tags = {
-"First02": {
-"Second22": null
-},
-"FirstLevel": {
-"SecondLevel": {
-"ThirdLevel": null
-},
-"SecondLevel2": null
-},
-"Test": null
-}
 metadata/_custom_type_script = "uid://c7bhn5npj1mlq"

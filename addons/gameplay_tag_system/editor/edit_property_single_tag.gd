@@ -1,12 +1,25 @@
+## Custom property editor for tag 
 @tool
-class_name EditPropertyTag
+class_name EditPropertySingleTag
 extends EditorProperty
+
 
 var _tag_button := Button.new()
 
 var _selector: Window
 
+
+
 func _init() -> void:
+	pass
+
+
+func setup(selector: Window ) -> void:
+	_selector = selector
+	_init_button()
+
+	
+func _init_button()->void:
 	var hbox := HBoxContainer.new()
 	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	add_child(hbox)
@@ -22,11 +35,6 @@ func _init() -> void:
 	clear_btn.pressed.connect(_on_clear_btn_pressed)
 	hbox.add_child(clear_btn)
 
-
-func setup(selector: Window) -> void:
-	_selector = selector
-
-
 func _set_read_only(read_only: bool) -> void:
 	_tag_button.disabled = read_only
 
@@ -35,12 +43,8 @@ func _update_property() -> void:
 	var obj := get_edited_object()
 	var prop := get_edited_property()
 	var v := obj.get(prop)
-
-	if typeof(v) in [TYPE_STRING, TYPE_STRING_NAME]:
-		_tag_button.text = v
-	elif v is Array or v is PackedStringArray:
-		_tag_button.text = ".".join(v)
 	
+	_tag_button.text = v
 	_tag_button.tooltip_text = "Tag: " + _tag_button.text
 
 
@@ -51,9 +55,7 @@ func _on_tag_button_pressed() -> void:
 	var v := obj.get(prop)
 
 	if typeof(v) in [TYPE_STRING, TYPE_STRING_NAME]:
-		_selector.show_tag_tree()
-	elif typeof(v) in [TYPE_ARRAY, TYPE_PACKED_STRING_ARRAY]:
-		_selector.show_tag_tree()
+		_selector.setup( v )
 	else:
 		assert(false)
 		return
@@ -63,25 +65,13 @@ func _on_tag_button_pressed() -> void:
 	var confirm := result[1] as bool
 
 	if confirm:
-		match typeof(v):
-			TYPE_STRING, TYPE_STRING_NAME:
-				emit_changed(prop, selected)
-			## TODO:看不懂
-			TYPE_ARRAY:
-				var domain :Array = selected.split(".", false)
-				emit_changed(prop, Array(domain, TYPE_STRING_NAME, &"", null))
-			TYPE_PACKED_STRING_ARRAY:
-				emit_changed(prop, selected.split(".", false))
+		emit_changed(prop, selected)
 
 
 func _on_clear_btn_pressed() -> void:
 	var obj := get_edited_object()
 	var prop := get_edited_property()
 	var v := obj.get(prop)
-	match typeof(v):
-		TYPE_STRING, TYPE_STRING_NAME:
-			emit_changed(prop, &"")
-		TYPE_ARRAY:
-			emit_changed(prop, Array([], TYPE_STRING_NAME, &"", null))
-		TYPE_PACKED_STRING_ARRAY:
-			emit_changed(prop, PackedStringArray())
+
+	emit_changed(prop, &"")
+		

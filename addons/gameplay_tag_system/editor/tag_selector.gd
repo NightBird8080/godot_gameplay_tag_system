@@ -1,3 +1,4 @@
+## Selector of tag
 @tool
 class_name TagSelector
 extends ConfirmationDialog
@@ -11,9 +12,9 @@ signal selected(tag :StringName, confirm: bool)
 
 
 
-## TODO,将资源中的Tag加载到这里
 var _tags : Dictionary = {}
-var _tree_items :Array[TreeItem]
+var _tree_items :Dictionary[String,TreeItem]
+
 var _selected : StringName =&"":
 	set(value):
 		_selected = value
@@ -36,46 +37,48 @@ func _process(delta: float) -> void:
 
 	
 
-func show_tag_tree() -> void:
-	# load tags resources
-	print(GameplayTagSystem.TAGS_RESOURCE_PATH)
+func setup(pre_value : String) -> void:
+	## load tags resources
 	if ResourceLoader.exists(GameplayTagSystem.TAGS_RESOURCE_PATH):
-		print("test")
 		var all_tags:TagDictionary = ResourceLoader.load(GameplayTagSystem.TAGS_RESOURCE_PATH)
 		if all_tags == null:
-			push_warning("TagSelector: show_tag_tree: Tags resource not found.")
-			print("test1")
+			push_warning("TagSelector: setup: Tags resource not found.")
 		else:
 			_tags = all_tags.tags
-			print("test2")
-	print("test")
 		
-	_selected =&""
+	# TODO maybe build tree just after tags modified
 	
 	_tree_items.clear()
 	_tree.clear()
+	
 	var root : TreeItem = _tree.create_item()
 	root.set_text(0, "")
 	root.set_metadata(0, "")
 	root.set_tooltip_text(0, "")
 
 	## recursively add tree node
-	add_tree_node_recursively(root, _tags)
+	_add_tree_node_recursively(root, _tags)
 
+	_selected = pre_value
+	if _tree_items.get(pre_value) != null:
+		# default one column
+		_tree.set_selected(_tree_items[pre_value],0)
+	
 	_on_search_text_changed(_search_line_edit.text)
 	popup_centered_ratio(0.6)
 	pass
 	
 	
-func add_tree_node_recursively(parent : TreeItem , tags : Dictionary , full_tag : String = "") -> void :
+func _add_tree_node_recursively(parent : TreeItem , tags : Dictionary , full_tag : String = "") -> void :
 	
 	for key in tags.keys():
 		var this_key_full_tag : String = full_tag
 		if not key is  String:
-			push_warning("TagSelector: add_tree_node_recursively: Tag[%s] is not String."% key )
+			
 			continue
 		
-		# 顶层Tag前不需要添加 "."
+		## 顶层Tag前不需要添加 "."
+		## TOP Tag do not need add "."
 		if this_key_full_tag == "":
 			this_key_full_tag = key
 		else:
@@ -86,18 +89,17 @@ func add_tree_node_recursively(parent : TreeItem , tags : Dictionary , full_tag 
 		non_leaf_node.set_text(0, key)
 		non_leaf_node.set_metadata(0, this_key_full_tag)
 
-		_tree_items.push_back(non_leaf_node)
+		_tree_items[this_key_full_tag] = non_leaf_node
 		## item.set_tooltip_text(0, tag)
 		
 		## 对非叶子节点进行递归
 		if tags[key] is Dictionary:
-			add_tree_node_recursively(non_leaf_node, tags[key],this_key_full_tag)
+			_add_tree_node_recursively(non_leaf_node, tags[key],this_key_full_tag)
 
 		## process value == null, it not recommend
 		# if tags[key] is Dictionary:
 		elif tags[key] == null:
-			push_warning("TagSelector: add_tree_node_recursively: Tag[%s] value is null. \n \
-			Please check your tags settings. It is allow but not recommend "% key)
+
 			continue
 				
 		## process value is string, the value is leaf
@@ -108,7 +110,8 @@ func add_tree_node_recursively(parent : TreeItem , tags : Dictionary , full_tag 
 			leaf_node.set_text(0, tags[key])
 			var leaf_tag : String = this_key_full_tag + "." + tags[key]
 			leaf_node.set_metadata(0, leaf_tag)
-			_tree_items.push_back(leaf_node)
+			#_tree_items.push_back(leaf_node)
+			_tree_items[leaf_tag] = leaf_node
 			continue
 	return
 
@@ -123,7 +126,7 @@ func _notification(what: int) -> void:
 			selected.emit(&"", false)	
 	
 func _on_search_text_changed(search_text: String) -> void:
-	for item in _tree_items:
+	for item in _tree_items.values():
 		var tag : StringName= item.get_metadata(0) as StringName
 		var visiblity : bool = false
 		if search_text.is_empty() :
@@ -145,5 +148,3 @@ func _on_tree_item_activated() -> void:
 
 func _on_tree_item_selected() -> void:
 	_selected = _tree.get_selected().get_metadata(0) 
-
-
