@@ -4,13 +4,13 @@
 
 ### Brief
 
-- This project is inspired by the GameplayTag system from a certain fantasy engine. It can be used alongside a GAS (Game Ability System) or serve as an aid for simpler gameplay mechanics.
+- This project is inspired by the GameplayTag system from XE engine. It can be used alongside a GAS (Game Ability System) or serve as an aid for simpler gameplay mechanics.
 
 - **Note: The project is still in development, and there may be significant changes in the future.**
 
 ### Project Purpose
 
-- To implement a GameplayTag system similar to that of a certain fantasy engine, facilitating the development of other gameplay systems that rely on a tag system.
+- To implement a GameplayTag system similar to that of XE engine, facilitating the development of other gameplay systems that rely on a tag system.
 
 ### Installation
 
